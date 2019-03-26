@@ -1,5 +1,6 @@
 package com.zxt.learn.design.delegate.rpc;
 
+import com.zxt.learn.design.delegate.rpc.utils.MappingUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -27,7 +28,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);
         //这个方法 就是典型的委派模式
-        HandlerMapping handlerMapping = ClassHandlerMapping.get(this.getClass());//这边只是为了没有编译错误
+        MethodHandler methodHandler = MappingUtils.getMethodHandler((String)msg);//这边只是为了没有编译错误
 
         //反射调用handler Mapping 方法
 
