@@ -5,6 +5,8 @@ package com.zxt.learn.design.delegate.rpc.handler;
 
 import com.zxt.learn.design.delegate.rpc.abstractProcess.AbstractProcess;
 import com.zxt.learn.design.delegate.rpc.confing.DeviceConfig;
+import com.zxt.learn.design.delegate.rpc.process.Process;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -22,13 +24,13 @@ public class SocketProtocolInitalizer extends ChannelInitializer<SocketChannel> 
     private static final Logger LOG = LoggerFactory.getLogger(SocketProtocolInitalizer.class);
 
 
-    private List<AbstractProcess> deviceProcessList;
+    private List<Process> deviceProcessList;
 
     private DeviceConfig deviceConfig;
 
-    private DecodersFactory factory;
+    private HandlerFactory factory;
 
-    public SocketProtocolInitalizer(List<AbstractProcess> deviceProcessList, DeviceConfig deviceConfig, DecodersFactory factory){
+    public SocketProtocolInitalizer(List<Process> deviceProcessList, DeviceConfig deviceConfig, HandlerFactory factory){
         this.deviceConfig=deviceConfig;
         this.deviceProcessList = deviceProcessList;
         this.factory = factory;
@@ -38,7 +40,7 @@ public class SocketProtocolInitalizer extends ChannelInitializer<SocketChannel> 
     protected void initChannel(SocketChannel ch) throws Exception {
         LOG.info("init socket");
         try {
-            List<ByteToMessageDecoder> decoders = factory.getDecoders();
+            List<ChannelHandler> handlers = factory.getHandlers();
             ChannelPipeline pipeline = ch.pipeline();
             // ByteBuf delimiter = Unpooled.copiedBuffer("#".getBytes());
             // pipeline.addLast(new DelimiterBasedFrameDecoder(2048,
@@ -51,9 +53,9 @@ public class SocketProtocolInitalizer extends ChannelInitializer<SocketChannel> 
                     new IdleStateHandler(deviceConfig.getReaderIdleTime(),
                             deviceConfig.getWriterIdleTime(),
                             deviceConfig.getAllIdleTime()));
-            if (null != decoders ) {
-                for (ByteToMessageDecoder decoder : decoders) {
-                    pipeline.addLast(decoder);
+            if (null != handlers ) {
+                for (ChannelHandler handler : handlers) {
+                    pipeline.addLast(handler);
                 }
             }
 

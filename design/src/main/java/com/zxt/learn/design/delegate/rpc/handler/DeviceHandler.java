@@ -1,9 +1,10 @@
 package com.zxt.learn.design.delegate.rpc.handler;
 
 
-import com.zxt.learn.design.delegate.rpc.abstractProcess.AbstractProcess;
 import com.zxt.learn.design.delegate.rpc.confing.StartCommon;
+import com.zxt.learn.design.delegate.rpc.messge.MessageRequest;
 import com.zxt.learn.design.delegate.rpc.process.MessageKeyword;
+import com.zxt.learn.design.delegate.rpc.process.Process;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,9 +24,9 @@ public class DeviceHandler extends ChannelInboundHandlerAdapter {
 	private static final Logger LOG = LoggerFactory.getLogger(DeviceHandler.class);
 
 
-	private List<AbstractProcess> deviceProcessList;
+	private List<Process> deviceProcessList;
 
-	public DeviceHandler(List<AbstractProcess> deviceProcessList){
+	public DeviceHandler(List<Process> deviceProcessList){
 		this.deviceProcessList = deviceProcessList;
 	}
 
@@ -53,32 +54,11 @@ public class DeviceHandler extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		LOG.debug("*********** channelRead started ***********");
 		try {
-			Map<String, Object> reqmsg = new HashMap<>();
-			reqmsg.put(MessageKeyword.rawData, msg);
-			reqmsg.put(MessageKeyword.channelHandlerContext, ctx);
-			if (isUpdateSession) {
-				reqmsg.put(MessageKeyword.isUpdateSession, true);
-				isUpdateSession = false;
-			} else {
-				reqmsg.put(MessageKeyword.isUpdateSession, false);
-			}
-			boolean isContinue = true;
-			if (deviceProcessList!=null){
-				for (AbstractProcess process : deviceProcessList) {
-					LOG.debug("*********** device process filter Loop started ------resmsg="+reqmsg.toString()+" ***********");
-					if (isContinue) {
-						process.init(reqmsg);
-						// process.readMsg();
-						process.parse();
-						process.reply();
-						process.forward();
-						isContinue = process.getIsContinue();
-						if(!isContinue){
-							break;
-						}
-
-					}
-				}
+			for (Process process:deviceProcessList){
+				Map<String,Object> map =new HashMap<>();
+				map.put("request",msg);
+				process.init(map);
+				process.parse();
 			}
 			LOG.debug("*********** channelRead Ends ***********");
 		} catch (Exception e) {

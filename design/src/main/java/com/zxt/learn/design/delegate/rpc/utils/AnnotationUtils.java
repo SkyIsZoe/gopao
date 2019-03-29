@@ -1,26 +1,24 @@
-package com.zxt.learn.design.delegate.rpc.test;
+package com.zxt.learn.design.delegate.rpc.utils;
 
 import com.zxt.learn.design.delegate.rpc.MethodHandler;
 import com.zxt.learn.design.delegate.rpc.annotation.Register;
-import com.zxt.learn.design.delegate.rpc.utils.HandlerUtils;
-import com.zxt.learn.design.delegate.rpc.utils.MappingUtils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * Created by zxt on 2019/3/26.
+ * Created by zxt on 2019/3/29.
  */
-public class AnnotationTest {
+public class AnnotationUtils {
 
-
-
-    private AnnotationTest(){
-
-    }
-
-    private void init(){
-        Class clazz = this.getClass();
-        Method[] methods =clazz.getMethods();
+    public static void initRegister(Class<?> clazz)throws Exception{
+        Method[] methods =clazz.getDeclaredMethods();
+        Constructor constructor = clazz.getDeclaredConstructor(null);
+        constructor.setAccessible(true);
+        if(constructor==null){
+            throw new Exception("this is no default constructor");
+        }
+        Object obj = constructor.newInstance();
         for(Method method:methods){
             if(method.isAnnotationPresent(Register.class)){
                 String methodNmae = method.getName();
@@ -36,27 +34,10 @@ public class AnnotationTest {
                 }
                 MethodHandler methodHandler = new MethodHandler();
                 methodHandler.setClasses(classes);
-                methodHandler.setHandler(this);
+                methodHandler.setHandler(obj);
                 methodHandler.setMethod(method);
                 MappingUtils.putMethodHandler(sb.toString(),methodHandler);
             }
         }
-    }
-
-
-
-    @Register
-    public void SayHello(String name,Integer age){
-        System.out.println("Hello World!");
-    }
-
-    public static void create(){
-        AnnotationTest test = new AnnotationTest();
-        HandlerUtils.putObj(test.getClass().getName(),test);
-    }
-
-    public static void main(String[] args) {
-        create();
-        MappingUtils.invodeAll();
     }
 }

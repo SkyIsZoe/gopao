@@ -3,7 +3,9 @@ package com.zxt.learn.design.delegate.rpc.confing;
 ;
 import com.zxt.learn.design.delegate.rpc.abstractProcess.AbstractProcess;
 import com.zxt.learn.design.delegate.rpc.handler.DecodersFactory;
+import com.zxt.learn.design.delegate.rpc.handler.HandlerFactory;
 import com.zxt.learn.design.delegate.rpc.handler.SocketProtocolInitalizer;
+import com.zxt.learn.design.delegate.rpc.process.Process;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -24,13 +26,13 @@ public class StartSocket {
 
     private static Logger log = LoggerFactory.getLogger(StartSocket.class);
 
-    private List<AbstractProcess> deviceProcessList;
+    private List<Process> deviceProcessList;
 
     private List<DeviceConfig> deviceConfigList;
 
-    private DecodersFactory factory;
+    private HandlerFactory factory;
 
-    public StartSocket(List<AbstractProcess> deviceProcessList, List<DeviceConfig> deviceConfigList, DecodersFactory factory){
+    public StartSocket(List<Process> deviceProcessList, List<DeviceConfig> deviceConfigList, HandlerFactory factory){
         this.deviceConfigList = deviceConfigList;
         this.deviceProcessList = deviceProcessList;
         this.factory = factory;
